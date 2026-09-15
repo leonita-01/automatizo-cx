@@ -1,0 +1,9 @@
+[
+  {
+    "title": "Password reset",
+    "intent": "account_access",
+    "keywords": ["password", "reset", "login", "passwort", "anmelden"],
+    "content_en": "Use the Forgot password option on the sign-in page. A time-limited verification link will be sent to the verified email address.",
+    "content_de": "Nutzen Sie auf der Anmeldeseite die Option Passwort vergessen. Ein zeitlich begrenzter Bestätigungslink wird an die verifizierte E-Mail-Adresse gesendet."
+  }
+]

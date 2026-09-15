@@ -1,0 +1,95 @@
+{
+  "name": "AutomatizoCX - Human Handoff",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "automatizo-cx-handoff",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4c6047a4-71ed-4a47-8027-260a48c66ae2",
+      "name": "Receive Handoff",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300],
+      "webhookId": "automatizo-cx-handoff"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst allowed = ['low', 'normal', 'high'];\nconst priority = allowed.includes(body.priority) ? body.priority : 'normal';\nreturn [{ json: { external_reference: body.ticket_id, conversation_id: body.conversation_id ?? null, subject: 'CX escalation: ' + body.reason, priority, transcript: body.transcript ?? [], source: 'automatizo-cx', received_at: new Date().toISOString() } }];"
+      },
+      "id": "4bca3f58-3ed4-48e1-afb5-073d7564d4a8",
+      "name": "Validate and Map Ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.TICKETING_API_URL }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.TICKETING_API_TOKEN }}"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.external_reference }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "cf6e15c5-c513-4623-8c52-81eefef93047",
+      "name": "Create External Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [740, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, ticket_id: $('Validate and Map Ticket').item.json.external_reference, downstream_status: $json.error ? 'failed' : 'delivered' } }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "b292b00d-a245-4741-a456-f06986810cf3",
+      "name": "Return Delivery Status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [980, 300]
+    }
+  ],
+  "connections": {
+    "Receive Handoff": {
+      "main": [[{"node": "Validate and Map Ticket", "type": "main", "index": 0}]]
+    },
+    "Validate and Map Ticket": {
+      "main": [[{"node": "Create External Ticket", "type": "main", "index": 0}]]
+    },
+    "Create External Ticket": {
+      "main": [[{"node": "Return Delivery Status", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9cc20b0-63dc-497c-9675-c9e05f9dced2",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
