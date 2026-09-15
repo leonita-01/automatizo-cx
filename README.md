@@ -29,10 +29,10 @@ AutomatizoCX demonstrates that complete lifecycle:
 2. Govern bilingual content in a persistent Knowledge Center.
 3. Receive a text or voice request.
 4. Redact personal data and inspect the prompt for unsafe instructions.
-5. retrieve the most relevant approved content with BM25-style ranking.
-6. answer with traceable sources or create a human handoff.
-7. deliver the handoff through a retry-safe webhook/n8n workflow.
-8. expose KPIs and audit evidence through an operations dashboard.
+5. Retrieve the most relevant approved content with BM25-style ranking.
+6. Answer with traceable sources or create a human handoff.
+7. Deliver the handoff through a retry-safe webhook/n8n workflow.
+8. Expose KPIs and audit evidence through an operations dashboard.
 
 ## Core capabilities
 
